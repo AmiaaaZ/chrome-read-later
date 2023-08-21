@@ -97,7 +97,8 @@ class SelectionInfo extends PageInfo {
     }
 
     get url () {
-        return this.selection.linkUrl
+        // 超链接或当前页面
+        return this.selection.linkUrl || this.selection.pageUrl
     }
 
     get title () {
@@ -105,7 +106,11 @@ class SelectionInfo extends PageInfo {
     }
 
     get hasTitle () {
-        return false
+        if (typeof this.selection.selectionText !== "undefined"){   // 以选中内容作为标题
+            return true
+        }else { // 超链接标题留空
+            return false
+        }
     }
 }
 

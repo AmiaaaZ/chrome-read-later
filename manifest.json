@@ -59,7 +59,8 @@
         "tabs",
         "storage",
         "contextMenus",
-        "favicon"
+        "favicon",
+        "declarativeNetRequest", "declarativeNetRequestWithHostAccess", "declarativeNetRequestFeedback"
     ],
     "version": "8.0.0"
 }

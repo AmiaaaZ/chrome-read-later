@@ -16,19 +16,16 @@ async function updateStorage ({ tab, position = {}, selection = {} }) {
     page = await data.completePageInfo(page)
     await storage.sync.set(page)
     await storage.local.set(page)
+
+    // 任何方式添加链接都有成功提示
+    await chrome.action.setBadgeText({ text: 'done' })
+    setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1500)
 }
 
 export async function savePage () {
     const tab = await tabs.queryCurrent()
     const position = await tabs.sendMessage(tab.id, { info: 'get position' })
     const { options } = await storage.sync.get('options')
-
-    if (options?.keepSavedTab) {
-        await chrome.action.setBadgeText({ text: 'done' })
-        setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1500)
-    } else {
-        await tabs.isFinalTab() ? tabs.empty() : tabs.remove(tab)
-    }
 
     await updateStorage({ tab, position })
 }

@@ -9,9 +9,11 @@ runtime.onMessage(action.openPage)
 runtime.onPopupDisconnect(action.removeDeletePages)
 
 contextMenus.onClicked(async (selection, tab) => {
-    selection.linkUrl
-        ? await action.saveSelection(tab, selection)
-        : await action.savePage()
+    if (typeof selection.linkUrl === "undefined" && typeof selection.selectionText === "undefined"){
+        await action.savePage()
+    } else {
+        await action.saveSelection(tab, selection)  // 允许以选中内容作为标题
+    }
 })
 
 contextMenus.create({

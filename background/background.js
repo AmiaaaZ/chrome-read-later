@@ -12,7 +12,7 @@ contextMenus.onClicked(async (selection, tab) => {
     if (typeof selection.linkUrl === "undefined" && typeof selection.selectionText === "undefined"){
         await action.savePage()
     } else {
-        await action.saveSelection(tab, selection)  // 允许以选中内容作为标题
+        await action.saveSelection(tab, selection)  // use selectionText as page.title
     }
 })
 

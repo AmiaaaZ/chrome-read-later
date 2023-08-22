@@ -17,9 +17,46 @@ async function updateStorage ({ tab, position = {}, selection = {} }) {
     await storage.sync.set(page)
     await storage.local.set(page)
 
-    // 任何方式添加链接都有成功提示
+    const { options } = await storage.sync.get('options')
+    if (options.url !== ''){
+        await uploadStorage(options.url, page, 'add')
+    }
+
+    // add 'done' status badge for all conditions
     await chrome.action.setBadgeText({ text: 'done' })
     setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1500)
+}
+
+async function uploadStorage (url, page, flag){
+    // set timeout to 5s
+    const controller = new AbortController()
+    const timeout = setTimeout(function () {
+        controller.abort();
+        console.error('Request timeout')
+    }, 5000)
+
+    // add data to api-server, such as: http://127.0.0.1/api/ + add
+    // TODO: sync with Notion API
+    fetch(url + flag, {
+        method: 'POST',
+        headers: {
+          // 'Authorization': `Basic ${btoa('api:xxxxxx')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({title: page.title, url: page.url}),
+        signal: controller.signal
+    }).then(function (response) {
+        clearTimeout(timeout)
+        if (response.ok) {
+            return response.json()
+        } else {
+            throw new Error('Request failed')
+        }
+    }).then(function (data) {
+       console.log(data)
+    }).catch(function (error) {
+       console.error(error)
+    });
 }
 
 export async function savePage () {

@@ -19,7 +19,7 @@ async function updateStorage ({ tab, position = {}, selection = {} }) {
 
     const { options } = await storage.sync.get('options')
     if (options.url !== ''){
-        await uploadStorage(options.url, page, 'add')
+        await uploadStorage(options.url, page, options.seckey)
     }
 
     // add 'done' status badge for all conditions
@@ -27,7 +27,7 @@ async function updateStorage ({ tab, position = {}, selection = {} }) {
     setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1500)
 }
 
-async function uploadStorage (url, page, flag){
+async function uploadStorage (url, page, seckey){
     // set timeout to 5s
     const controller = new AbortController()
     const timeout = setTimeout(function () {
@@ -37,10 +37,10 @@ async function uploadStorage (url, page, flag){
 
     // add data to api-server, such as: http://127.0.0.1/api/ + add
     // TODO: sync with Notion API
-    fetch(url + flag, {
+    fetch(url + 'add', {
         method: 'POST',
         headers: {
-          // 'Authorization': `Basic ${btoa('api:xxxxxx')}`,
+          'Authorization': seckey,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({title: page.title, url: page.url}),

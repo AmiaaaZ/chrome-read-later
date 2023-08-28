@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        th, td {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        a, span{
+            font-size: 17px;
+        }
+
+        a:link {
+          color: slategray;
+        }
+
+        a:visited {
+          color: darkslategray;
+        }
+
+        .record-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            width: 50em;
+        }
+
+        .record-container input[type="checkbox"] {
+            margin-right: 10px;
+            align-self: flex-start;
+        }
+
+        .record-container a.title {
+            flex-grow: 1;
+            max-width: 500px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .record-container span.time {
+            display: inline-block;
+            text-align: right;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .record-container a.delete {
+            text-decoration: none;
+            color: red;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Dashboard</h1>
+    <div id="seckey" style="display: none">{{ seckey }}</div>
+    {% for create_time, records in data.items() %}
+        <h2>{{ create_time }}</h2>
+        {% for record in records |reverse %}
+            <div class="record-container">
+                {% if record.status == 1 %}
+                    <input type="checkbox" checked disabled>
+                {% else %}
+                    <input type="checkbox" onclick="syncStatus({{ record.id }}, this.checked)">
+                {% endif %}
+                <a href="{{ record.url }}" class="title">{{ record.title }}</a>
+                <span class="time">{{ record.create_time.strftime("%H:%M:%S") }}</span>
+                <a href="#" class="delete" onclick="syncDelete({{ record.id }})">×</a>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <script>
+        var seckey = document.getElementById('seckey').textContent
+        function syncStatus(id, status) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/sync/' + id + '/' + (status ? 1 : 0), true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    refreshPageWithHeaders();
+                }
+            };
+            xhr.send()
+        }
+
+        function syncDelete(id){
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/delete/' + id, true);
+            xhr.setRequestHeader('Authorization', seckey);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    refreshPageWithHeaders();
+                }
+            };
+            xhr.send()
+        }
+
+        function refreshPageWithHeaders() {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', window.location.href, true);
+          xhr.setRequestHeader('Authorization', seckey);
+
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              document.open();
+              document.write(xhr.responseText);
+              document.close();
+            }
+          };
+          xhr.send();
+        }
+    </script>
+</body>
+</html>

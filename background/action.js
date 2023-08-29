@@ -35,8 +35,8 @@ async function uploadStorage (url, page, seckey){
         console.error('Request timeout')
     }, 5000)
 
-    // add data to api-server, such as: http://127.0.0.1/api/ + add
-    // TODO: sync with Notion API
+    // add data to api-server, such as: http://127.0.0.1/ + add
+    // TODO: sync with Notion API (maybe in the future)
     fetch(url + 'add', {
         method: 'POST',
         headers: {

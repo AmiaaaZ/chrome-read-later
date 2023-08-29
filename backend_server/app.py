@@ -10,7 +10,7 @@ app.secret_key = os.getenv('seckey')
 
 @app.before_request
 def auth():
-    if session.get('login') == 'true'or request.headers.get('Authorization') == os.getenv('seckey'):
+    if session.get('login') == 'true' or request.headers.get('Authorization') == os.getenv('seckey'):
         return None
     elif request.args.get('seckey') == os.getenv('seckey'):
         session['login'] = 'true'
@@ -19,7 +19,7 @@ def auth():
         abort(403)
 
 
-@app.route('/api/add', methods=['POST'])
+@app.route('/add', methods=['POST'])
 def add():
     data = request.get_json()
     # print(data)
@@ -59,6 +59,11 @@ def dashboard():
     return render_template('dashboard.html', data=data, seckey=request.headers.get('Authorization'))
 
 
+@app.route("/")
+def index():
+    return redirect("/dashboard")
+
+
 @app.route('/sync/<int:id>/<int:status>')
 def sync_status(id, status):
     conn = sqlite3.connect('data.db')
@@ -80,4 +85,16 @@ def delete_record(id):
 
 
 if __name__ == '__main__':
+    if not os.path.isfile("data.db"):
+        conn = sqlite3.connect('data.db')
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS reading_list (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            title TEXT,
+                            url TEXT UNIQUE,
+                            create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            status BOOLEAN DEFAULT 0
+                        )''')
+        conn.commit()
+        conn.close()
     app.run(host="0.0.0.0", port=10393)

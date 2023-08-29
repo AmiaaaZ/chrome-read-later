@@ -1,15 +1,19 @@
 import sqlite3
 
-from flask import Flask, render_template, request, redirect, jsonify, abort
+from flask import Flask, render_template, request, redirect, jsonify, abort, session
 from datetime import datetime
 import os
 
 app = Flask(__name__)
+app.secret_key = os.getenv('seckey')
 
 
 @app.before_request
 def auth():
-    if request.headers.get('Authorization') == os.getenv('seckey'):
+    if session.get('login') == 'true'or request.headers.get('Authorization') == os.getenv('seckey'):
+        return None
+    elif request.args.get('seckey') == os.getenv('seckey'):
+        session['login'] = 'true'
         return None
     else:
         abort(403)
@@ -62,7 +66,6 @@ def sync_status(id, status):
     cursor.execute("UPDATE reading_list SET status=? WHERE id=?", (status, id))
     conn.commit()
     conn.close()
-
     return redirect('/dashboard')
 
 
@@ -73,7 +76,6 @@ def delete_record(id):
     cursor.execute("DELETE FROM reading_list WHERE id=?", (id,))
     conn.commit()
     conn.close()
-
     return redirect('/dashboard')
 
 

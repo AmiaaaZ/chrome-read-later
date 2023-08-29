@@ -8,14 +8,13 @@
         }
 
         h1 {
-            font-size: 24px;
-            text-align: center;
+            font-size: 2em;
             margin-bottom: 20px;
         }
 
         h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 12px;
         }
 
         a, span{
@@ -44,7 +43,7 @@
 
         .record-container a.title {
             flex-grow: 1;
-            max-width: 500px;
+            max-width: 550px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -65,10 +64,8 @@
         }
     </style>
 </head>
-
 <body>
-    <h1>Dashboard</h1>
-    <div id="seckey" style="display: none">{{ seckey }}</div>
+    <h1>Read Now (´ω｀★)</h1>
     {% for create_time, records in data.items() %}
         <h2>{{ create_time }}</h2>
         {% for record in records |reverse %}
@@ -80,41 +77,28 @@
                 {% endif %}
                 <a href="{{ record.url }}" class="title">{{ record.title }}</a>
                 <span class="time">{{ record.create_time.strftime("%H:%M:%S") }}</span>
-                <a href="#" class="delete" onclick="syncDelete({{ record.id }})">×</a>
+                <a href="/delete/{{ record.id }}" class="delete">×</a>
             </div>
         {% endfor %}
     {% endfor %}
 
     <script>
-        var seckey = document.getElementById('seckey').textContent
         function syncStatus(id, status) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '/sync/' + id + '/' + (status ? 1 : 0), true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    refreshPageWithHeaders();
-                }
-            };
+            // xhr.onreadystatechange = function() {
+            //     if (xhr.readyState === 4 && xhr.status === 200) {
+            //         refreshPageWithHeaders();
+            //     }
+            // };
             xhr.send()
         }
 
-        function syncDelete(id){
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/delete/' + id, true);
-            xhr.setRequestHeader('Authorization', seckey);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    refreshPageWithHeaders();
-                }
-            };
-            xhr.send()
-        }
-
+        // deprecated, change to the easier way for delete item with auth
         function refreshPageWithHeaders() {
           var xhr = new XMLHttpRequest();
           xhr.open('GET', window.location.href, true);
           xhr.setRequestHeader('Authorization', seckey);
-
           xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
               document.open();

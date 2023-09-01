@@ -10,6 +10,21 @@
         h1 {
             font-size: 2em;
             margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .left-align {
+            text-align: left;
+        }
+
+        .right-align {
+            margin-right: 800px;
+            float: right;
+        }
+
+        .count {
+            padding: 10px;
+            color: steelblue;
         }
 
         h2 {
@@ -65,7 +80,8 @@
     </style>
 </head>
 <body>
-    <h1>Read Now (´ω｀★)</h1>
+    <h1 class="left-align">Read Now (´ω｀★)</h1>
+    <h2 class="right-align count">{{ count }}</h2>
     {% for create_time, records in data.items() %}
         <h2>{{ create_time }}</h2>
         {% for record in records |reverse %}

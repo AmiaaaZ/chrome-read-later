@@ -39,7 +39,6 @@ def dashboard():
     cursor.execute(
         "SELECT id, title, url, strftime('%Y-%m-%d %H:%M:%S', create_time, '+8 hour'), status FROM reading_list ORDER BY create_time DESC")
     rows = cursor.fetchall()
-    conn.close()
 
     data = {}
     for row in rows:
@@ -56,7 +55,12 @@ def dashboard():
         data[create_time].append(record)
         # print(data)
 
-    return render_template('dashboard.html', data=data, seckey=request.headers.get('Authorization'))
+    cursor.execute(
+        "SELECT SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS count_status_1, COUNT(*) AS count_total FROM reading_list")
+    count = cursor.fetchone()
+    count = f'{count[0]}/{count[1]}'
+    conn.close()
+    return render_template('dashboard.html', data=data, count=count)
 
 
 @app.route("/")

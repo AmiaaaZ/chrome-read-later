@@ -5,7 +5,6 @@ For a **complete** introduction, please check the [README.md](https://github.com
 ### backend_server
 
 1. Set environment variable key `seckey` with any value you want
-
 2. Deploy the Flask app in the backend_server folder
 
 ### extension

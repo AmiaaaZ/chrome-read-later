@@ -7,8 +7,8 @@ export async function saveSelection (tab, selection) {
     await updateStorage({ tab, selection })
 }
 
-async function updateStorage ({ tab, position = {}, selection = {} }) {
-    let page = data.initPageInfo({ tab, position, selection })
+async function updateStorage ({ tab, selection = {} }) {
+    let page = data.initPageInfo({ tab, selection })
     await storage.sync.set(page)
     await storage.local.set(page)
 
@@ -36,7 +36,6 @@ async function uploadStorage (url, page, seckey){
     }, 5000)
 
     // add data to api-server, such as: http://127.0.0.1/ + add
-    // TODO: sync with Notion API (maybe in the future)
     fetch(url + 'add', {
         method: 'POST',
         headers: {
@@ -61,10 +60,7 @@ async function uploadStorage (url, page, seckey){
 
 export async function savePage () {
     const tab = await tabs.queryCurrent()
-    const position = await tabs.sendMessage(tab.id, { info: 'get position' })
-    const { options } = await storage.sync.get('options')
-
-    await updateStorage({ tab, position })
+    await updateStorage({ tab })
 }
 
 export async function openPage ({ url, currentTab, active, isHistory }) {
@@ -86,20 +82,14 @@ export function removeDeletePages () {
 
 }
 
+// TODO: change to sync cloud storage
 export async function migrateStorage () {
     await upgradeStorage('sync')
     await upgradeStorage('local')
 
-    function upgradeFaviconUrl (url) {
-        const oldPrefix = 'chrome://favicon/size/16@2x/'
-        const newPrefix = `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=`
-        return url.replace(oldPrefix, newPrefix) + '&size=32'
-    }
-
     async function upgradeStorage (key) {
         const pages = await storage[key].get()
         for (const page of Object.values(pages)) {
-            page.favIconUrl = upgradeFaviconUrl(page.favIconUrl)
             await storage[key].set(page)
         }
     }

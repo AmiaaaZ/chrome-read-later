@@ -21,72 +21,11 @@ class PageInfo {
     }
 
     get favIconUrl () {
-        const origin = new URL(this.url).origin
-        return `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=${origin}&size=32`
+        return `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=${this.url}&size=32`
     }
 
     get date () {
         return Date.now()
-    }
-
-    get scrollTop () {
-        return 0
-    }
-
-    get scrollPercent () {
-        return this.percent(0)
-    }
-
-    percent (num) {
-        return Math.floor(num * 100) + '%'
-    }
-
-    get scrollHeight () {
-        return 0
-    }
-
-    get currentTime () {
-        return 0
-    }
-
-    get playbackRate () {
-        return 1
-    }
-
-    get videoPercent () {
-        return this.percent(0)
-    }
-}
-
-class PositionInfo extends PageInfo {
-    constructor (tab, position) {
-        super(tab)
-        this.scroll = position.scroll
-        this.video = position.video
-    }
-
-    get scrollTop () {
-        return this.scroll.top
-    }
-
-    get scrollHeight () {
-        return this.scroll.height
-    }
-
-    get scrollPercent () {
-        return this.percent(this.scroll.bottom / this.scroll.height)
-    }
-
-    get currentTime () {
-        return this.video.currentTime
-    }
-
-    get playbackRate () {
-        return this.video.playbackRate
-    }
-
-    get videoPercent () {
-        return this.percent(this.video.currentTime / this.video.duration)
     }
 }
 
@@ -114,32 +53,20 @@ class SelectionInfo extends PageInfo {
     }
 }
 
-function createPageInfo (tab, position, selection) {
+function createPageInfo (tab, selection) {
     return selection.isEmpty()
-        ? position.isEmpty()
-            ? new PageInfo(tab)
-            : new PositionInfo(tab, position)
+        ? new PageInfo(tab)
         : new SelectionInfo(tab, selection)
 }
 
-export function initPageInfo ({ tab, position, selection }) {
-    const page = createPageInfo(tab, position, selection)
+export function initPageInfo ({ tab, selection }) {
+    const page = createPageInfo(tab, selection)
     return {
         url:        page.url,
         title:      page.title,
         hasTitle:   page.hasTitle,
         favIconUrl: page.favIconUrl,
-        date:       page.date,
-        scroll:     {
-            top:     page.scrollTop,
-            height:  page.scrollHeight,
-            percent: page.scrollPercent,
-        },
-        video:      {
-            currentTime:  page.currentTime,
-            playbackRate: page.playbackRate,
-            percent:      page.videoPercent,
-        },
+        date:       page.date
     }
 }
 

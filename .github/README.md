@@ -10,7 +10,7 @@ For a **complete** introduction, please check the [README.md](https://github.com
 ### extension
 
 1. Clone this repo
-2. Install this repo as  an extension on Chrome or Edge manually
+2. Install this repo as an extension on Chrome or Edge manually
 3. Configure the `URL`(such as `http://your-ip:port/`) and `seckey` in the extensions settings
 
 ## Usage
@@ -18,8 +18,6 @@ For a **complete** introduction, please check the [README.md](https://github.com
 - Use it like the original chrome-read-later extension
 - View all your saved pages in `http://you-ip:port/dashboard`, you can change each page's reading status and delete it
 - **Attention**: You need to append `?seckey=xxxx` when accessing `http://you-ip:port/` for the first time. It will remember the session thereafter
-
-![dashboard_demo](./images/dashboard_demo.png)
 
 ## Features
 

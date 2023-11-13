@@ -16,9 +16,9 @@
     "author": "Will B Chang",
     "license": "AGPL-3.0",
     "bugs": {
-        "url": "https://github.com/willbchang/chrome-read-later/issues"
+        "url": "https://github.com/AmiaaaZ/chrome-read-later/issues"
     },
-    "homepage": "https://github.com/willbchang/chrome-read-later#readme",
+    "homepage": "https://github.com/AmiaaaZ/chrome-read-later#readme",
     "devDependencies": {
         "@types/chrome": "0.0.154",
         "@types/jquery": "^3.5.5",

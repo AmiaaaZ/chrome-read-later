@@ -3,12 +3,12 @@ import * as storage from '../modules/chrome/storage.mjs'
 import * as tabs from '../modules/chrome/tabs.mjs'
 import * as localStore from '../modules/localStore/localStore.mjs'
 
-export async function saveSelection (tab, selection) {
-    await updateStorage({ tab, selection })
+export async function saveSelection(tab, selection) {
+    await updateStorage({tab, selection})
 }
 
-async function updateStorage ({ tab, selection = {} }) {
-    let page = data.initPageInfo({ tab, selection })
+async function updateStorage({tab, selection = {}}) {
+    let page = data.initPageInfo({tab, selection})
     await storage.sync.set(page)
     await storage.local.set(page)
 
@@ -17,14 +17,14 @@ async function updateStorage ({ tab, selection = {} }) {
     await storage.sync.set(page)
     await storage.local.set(page)
 
-    const { options } = await storage.sync.get('options')
-    if (options.url !== ''){
+    const {options} = await storage.sync.get('options')
+    if (options.url !== '') {
         await uploadStorage(options.url, page, options.seckey)
     }
 
     // add 'done' status badge for all conditions
-    await chrome.action.setBadgeText({ text: 'done' })
-    setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1500)
+    await chrome.action.setBadgeText({text: 'done'})
+    setTimeout(() => chrome.action.setBadgeText({text: ''}), 1500)
 }
 
 async function uploadStorage (url, page, seckey){
@@ -58,22 +58,35 @@ async function uploadStorage (url, page, seckey){
     });
 }
 
-export async function savePage () {
+export async function savePage() {
     const tab = await tabs.queryCurrent()
-    await updateStorage({ tab })
+    await updateStorage({tab})
 }
 
-export async function openPage ({ url, currentTab, active, isHistory }) {
+export async function openPage({url, currentTab, active, isHistory}) {
     const tab = currentTab ? await tabs.update(url) : await tabs.create(url,
         active)
-    const position = isHistory
-        ? await storage.local.getPosition(url)
-        : await storage.sync.getPosition(url)
-    const tabId = await tabs.onComplete(tab)
-    await tabs.sendMessage(tabId, { ...position, info: 'set position' })
+
+    if (!isHistory) {
+        const tabId = await tabs.onComplete(tab)
+        await new Promise(resolve => {
+            chrome.tabs.sendMessage(tabId, {_url: url, info: 'add checkbox'}, response => {
+                if (response === 'read over') {
+                    console.log('read over: ' + url)
+                    // TODO: sync status to backend server
+                }
+                resolve(response)
+                // https://stackoverflow.com/a/28432087/9984029
+                // Handle the error when there is no need to receive response.
+                if (chrome.runtime.lastError) {
+                    console.log('Handled Error:', chrome.runtime.lastError.message)
+                }
+            })
+        })
+    }
 }
 
-export function removeDeletePages () {
+export function removeDeletePages() {
     localStore.getArray('deletedSyncUrls')
         .then(data => data.map(url => storage.sync.remove(url)))
         .then(() => localStore.getArray('deletedLocalUrls'))
@@ -83,11 +96,11 @@ export function removeDeletePages () {
 }
 
 // TODO: change to sync cloud storage
-export async function migrateStorage () {
+export async function migrateStorage() {
     await upgradeStorage('sync')
     await upgradeStorage('local')
 
-    async function upgradeStorage (key) {
+    async function upgradeStorage(key) {
         const pages = await storage[key].get()
         for (const page of Object.values(pages)) {
             await storage[key].set(page)

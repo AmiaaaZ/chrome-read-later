@@ -11,9 +11,7 @@ const getSessionKey = () => window.isHistory
 
 export const open = ({ currentTab = false, active = true }) => {
     if (window.isHidingLi) return // prevents open same instance multiple times
-    if (!window.isHistory) dele()
-    runtime.sendMessage(
-        { url: activeUrl(), currentTab, active, isHistory: window.isHistory })
+    runtime.sendMessage({ url: activeUrl(), currentTab, active, isHistory: window.isHistory })
     if (currentTab) window.close()
 }
 
@@ -67,7 +65,7 @@ export const copyUrl = async () => {
 }
 
 export const question = () => window.open(
-    'https://github.com/willbchang/chrome-read-later#readme')
+    'https://github.com/AmiaaaZ/chrome-read-later#readme')
 
 export const reactive = li => {
     activeLi().removeClass('active')

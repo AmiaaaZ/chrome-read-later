@@ -40,23 +40,6 @@ export async function isFinalTab () {
     return allTabs.length === 1
 }
 
-// https://developer.chrome.com/extensions/tabs#method-sendMessage
-export function sendMessage (tabId, message) {
-    return new Promise(resolve => {
-        chrome.tabs.sendMessage(tabId, message, response => {
-            resolve(response)
-            handleResponseError()
-        })
-    })
-
-    function handleResponseError () {
-        // https://stackoverflow.com/a/28432087/9984029
-        // Handle the error when there is no need to receive response.
-        if (chrome.runtime.lastError)
-            console.log('Handled Error:', chrome.runtime.lastError.message)
-    }
-}
-
 // https://developer.chrome.com/extensions/tabs#event-onUpdated
 export function onComplete (newTab) {
     return new Promise(resolve => {

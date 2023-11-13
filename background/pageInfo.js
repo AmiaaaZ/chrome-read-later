@@ -27,6 +27,10 @@ class PageInfo {
     get date () {
         return Date.now()
     }
+
+    get state() {
+        return false
+    }
 }
 
 class SelectionInfo extends PageInfo {
@@ -66,7 +70,8 @@ export function initPageInfo ({ tab, selection }) {
         title:      page.title,
         hasTitle:   page.hasTitle,
         favIconUrl: page.favIconUrl,
-        date:       page.date
+        date:       page.date,
+        state:      page.state
     }
 }
 

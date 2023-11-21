@@ -1,8 +1,8 @@
+import os
 import sqlite3
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, jsonify, abort, session
-from datetime import datetime
-import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv('seckey')
@@ -86,6 +86,44 @@ def delete_record(id):
     conn.commit()
     conn.close()
     return redirect('/dashboard')
+
+
+@app.route('/add-note', methods=['POST'])
+def add_note():
+    data = request.get_json()
+    content = data['content']
+
+    if content:
+        conn = sqlite3.connect('data.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO quick_notes (content) VALUES (?)', (content,))
+        conn.commit()
+        conn.close()
+        return jsonify({'status': 'success', 'message': 'Note added successfully.'}), 200
+    return jsonify({'status': 'error', 'message': 'No content provided.'}), 400
+
+
+@app.route('/get-notes', methods=['GET'])
+def get_notes():
+    conn = sqlite3.connect('data.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, content, strftime('%Y-%m-%d %H:%M:%S', create_time, '+8 hour'), status FROM quick_notes ORDER BY create_time DESC")
+    rows = cursor.fetchall()
+    conn.close()
+
+    data = []
+    for row in rows:
+        record = {
+            'id': row[0],
+            'status': row[3],
+            'content': row[1],
+            'create_time': datetime.strptime(row[2], "%Y-%m-%d %H:%M:%S").strftime("%d%m%y")
+        }
+        data.append(record)
+
+    return jsonify(data)
 
 
 if __name__ == '__main__':

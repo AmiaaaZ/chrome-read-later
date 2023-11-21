@@ -1,129 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        th, td {
-            text-align: center;
+        body {
+            padding-top: 20px;
         }
 
-        h1 {
-            font-size: 2em;
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            display: inline-block;
         }
 
-        .left-align {
-            text-align: left;
-        }
-
-        .right-align {
-            margin-right: 800px;
-            float: right;
+        .custom-badge-spacing {
+            margin-right: 0.5rem;
         }
 
         .count {
-            padding: 10px;
-            color: steelblue;
+            font-size: 1.5rem;
+            color: #4682B4;
+            background-color: #f0f0f0;
+            margin-right: 5px; /* 调整间距到你满意的距离 */
         }
 
-        h2 {
-            font-size: 1.5em;
-            margin-bottom: 12px;
+        .note-element {
+            background: #f8f9fa;
+            border-radius: .25rem;
+            padding: .5rem;
+            margin-bottom: .5rem;
+            font-size: .9rem;
+            color: #495057;
+            transition: background-color .15s ease-in-out;
+            overflow: hidden;
         }
 
-        a, span{
-            font-size: 17px;
+        .note-element .note-content {
+            word-break: break-word;
+            margin-bottom: .5rem;
         }
 
-        a:link {
-          color: slategray;
+        .note-element .note-time {
+            float: right;
+            color: #6c757d;
+            font-size: .8rem;
         }
 
-        a:visited {
-          color: darkslategray;
+        .note-element:hover {
+            background-color: #e2e6ea;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            border-radius: .3rem;
+            box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-bottom: none;
+            background-color: #f7f7f7;
         }
 
         .record-container {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
-            width: 50em;
+            margin-bottom: .5rem;
+            background: #f8f9fa;
+            border-radius: .25rem;
+            padding: .5rem;
+            transition: background-color .15s ease-in-out;
+        }
+
+        .record-container:hover {
+            background-color: #e2e6ea;
         }
 
         .record-container input[type="checkbox"] {
-            margin-right: 10px;
-            align-self: flex-start;
+            margin-right: .5rem;
         }
 
-        .record-container a.title {
+        .record-container .title {
             flex-grow: 1;
-            max-width: 550px;
+            margin-right: 1rem;
+            text-decoration: none;
+            color: #007bff;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-right: 5px;
         }
 
-        .record-container span.time {
-            display: inline-block;
-            text-align: right;
-            margin-left: 5px;
-            margin-right: 5px;
+        .record-container .time {
+            color: #6c757d;
+            margin-right: 1rem;
         }
 
-        .record-container a.delete {
+        .record-container .delete {
+            color: #dc3545;
             text-decoration: none;
-            color: red;
-            margin-left: 5px;
+            margin-left: 1rem;
+        }
+
+        .record-container .delete:hover {
+            color: #bd2130;
         }
     </style>
 </head>
 <body>
-    <h1 class="left-align">Read Now (´ω｀★)</h1>
-    <h2 class="right-align count">{{ count }}</h2>
-    {% for create_time, records in data.items() %}
-        <h2>{{ create_time }}</h2>
-        {% for record in records |reverse %}
-            <div class="record-container">
-                {% if record.status == 1 %}
-                    <input type="checkbox" checked disabled>
-                {% else %}
-                    <input type="checkbox" onclick="syncStatus({{ record.id }}, this.checked)">
-                {% endif %}
-                <a href="{{ record.url }}" class="title">{{ record.title }}</a>
-                <span class="time">{{ record.create_time.strftime("%H:%M:%S") }}</span>
-                <a href="/delete/{{ record.id }}" class="delete">×</a>
+<div class="container">
+    <div class="header-row d-flex justify-content-between">
+        <h1>Read Now <span class="text-muted">(´ω｀★)</span></h1>
+        <div class="d-flex align-items-center">
+            <span class="count badge badge-secondary custom-badge-spacing">{{ count }}</span>
+            <button class="btn btn-primary" data-target="#quickNoteModal" data-toggle="modal" type="button">
+                Add Note
+            </button>
+        </div>
+    </div>
+    <div aria-hidden="true" aria-labelledby="quickNoteModalLabel" class="modal fade" id="quickNoteModal" role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickNoteModalLabel">Quick Note</h5>
+                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="notesContainer" style="max-height: 300px; overflow-y: auto;">
+                    </div>
+                    <input class="form-control mt-2" id="quickNoteInput" placeholder="Enter note" type="text">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                    <button class="btn btn-primary" onclick="addNote()" type="button">Save Note</button>
+                </div>
             </div>
-        {% endfor %}
+        </div>
+    </div>
+    {% for create_time, records in data.items() %}
+    <h2 class="mt-4">{{ create_time }}</h2>
+    {% for record in records | reverse %}
+    <div class="record-container">
+        {% if record.status == 1 %}
+        <input checked disabled type="checkbox">
+        {% else %}
+        <input onclick="syncStatus({{ record.id }}, this.checked)" type="checkbox">
+        {% endif %}
+        <a class="title" href="{{ record.url }}">{{ record.title }}</a>
+        <span class="time">{{ record.create_time.strftime("%H:%M:%S") }}</span>
+        <a class="delete" href="/delete/{{ record.id }}">×</a>
+    </div>
     {% endfor %}
+    {% endfor %}
+</div>
+<script>
+    function syncStatus(id, status) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/sync/' + id + '/' + (status ? 1 : 0), true);
+        xhr.send();
+    }
 
-    <script>
-        function syncStatus(id, status) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/sync/' + id + '/' + (status ? 1 : 0), true);
-            // xhr.onreadystatechange = function() {
-            //     if (xhr.readyState === 4 && xhr.status === 200) {
-            //         refreshPageWithHeaders();
-            //     }
-            // };
-            xhr.send()
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        loadNotes();
+    });
 
-        // deprecated, change to the easier way for delete item with auth
-        function refreshPageWithHeaders() {
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', window.location.href, true);
-          xhr.setRequestHeader('Authorization', seckey);
-          xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-              document.open();
-              document.write(xhr.responseText);
-              document.close();
+    function loadNotes() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/get-notes', true);
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var notes = JSON.parse(xhr.responseText);
+                var notesContainer = document.getElementById('notesContainer');
+                notesContainer.innerHTML = '';
+                notes.forEach(function (note) {
+                    var noteElement = document.createElement('div');
+                    noteElement.className = 'note-element';
+
+                    var contentElement = document.createElement('span');
+                    contentElement.className = 'note-content';
+                    contentElement.textContent = note.content;
+                    noteElement.appendChild(contentElement);
+
+                    var timeElement = document.createElement('span');
+                    timeElement.className = 'note-time';
+                    timeElement.textContent = note.create_time;
+                    noteElement.appendChild(timeElement);
+
+                    notesContainer.appendChild(noteElement);
+                });
             }
-          };
-          xhr.send();
+        };
+        xhr.send();
+    }
+
+    function addNote() {
+        var input = document.getElementById('quickNoteInput');
+        var noteContent = input.value.trim();
+        if (noteContent) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/add-note', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    input.value = '';
+                    loadNotes();
+                }
+            };
+            xhr.send(JSON.stringify({content: noteContent}));
         }
-    </script>
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

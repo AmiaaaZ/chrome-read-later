@@ -24,4 +24,4 @@ For a **complete** introduction, please check the [README.md](https://github.com
 - Use selectionText as page title
 - Connect to the backend server written in Flask and display data on a separate dashboard page
 - Mark the reading state easily by toggling the checkbox in the top-right corner of the page (need open the page from popup reading-list first)
-
+- Add quick notes and view them all

@@ -49,7 +49,7 @@ def dashboard():
             'url': row[2],
             'create_time': datetime.strptime(row[3], "%Y-%m-%d %H:%M:%S")
         }
-        create_time = record['create_time'].strftime("%m%d")
+        create_time = record['create_time'].strftime("%m%d%y")
         if create_time not in data:
             data[create_time] = []
         data[create_time].append(record)
